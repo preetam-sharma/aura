@@ -1,0 +1,36 @@
+# Codemagic configuration for Aura iOS Build
+# https://docs.codemagic.io/yaml-basic-configuration/yaml-getting-started/
+
+workflows:
+  ios-release:
+    name: Aura iOS Release Build
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Set up package config
+        script: | 
+          flutter pub get
+      - name: Build iOS IPA
+        script: | 
+          # Build with --no-codesign to create the archive
+          # Codemagic will then allow us to download the archive or partial IPA
+          flutter build ipa --release --no-codesign
+          
+          # Force create an 'Unsigned' IPA artifact if possible, or just export the archive.
+          # For Sideloadly, we actually need the .ipa file. 
+          # We'll use Codemagic's automatic IPA packaging for unsigned builds.
+    artifacts:
+      - build/ios/archive/*.xcarchive
+      - build/ios/ipa/*.ipa
+
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com # User should update this
+        notify:
+          success: true
+          failure: true

@@ -1,0 +1,39 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build iOS IPA
+    runs-on: macos-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          
+      - name: Install dependencies
+        run: flutter pub get
+        
+      - name: Build IPA
+        run: |
+          # Build unsigned IPA
+          flutter build ipa --release --no-codesign
+          
+          # Move IPA to a predictable location for artifact upload
+          mkdir -p build/ios/ipa
+          cp -r build/ios/archive/*.xcarchive build/ios/ipa/ || true
+          # We need to package it as an IPA for Sideloadly
+          # This is a simplified step; usually, a .app is zipped/renamed to .ipa for sideloading
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: aura-ios-ipa
+          path: build/ios/archive/*.xcarchive
