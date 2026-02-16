@@ -23,16 +23,19 @@ jobs:
         
       - name: Build IPA
         run: |
-          # Build unsigned IPA
-          flutter build ipa --release --no-codesign
+          # Build with no codesign to get the .app bundle
+          flutter build ios --release --no-codesign
           
-          # Move IPA to a predictable location for artifact upload
-          mkdir -p build/ios/ipa
-          cp -r build/ios/archive/*.xcarchive build/ios/ipa/ || true
+          # Create IPA manually
+          mkdir -p build/ios/ipa/Payload
+          cp -r build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
+          cd build/ios/ipa
+          zip -r aura.ipa Payload
           
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: aura-ios-ipa
-          path: build/ios/archive/*.xcarchive
+          name: aura-ipa
+          path: build/ios/ipa/aura.ipa
+
 
