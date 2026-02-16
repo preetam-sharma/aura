@@ -11,7 +11,7 @@ jobs:
     runs-on: macos-latest
     
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Install Flutter
         uses: subosito/flutter-action@v2
@@ -29,11 +29,10 @@ jobs:
           # Move IPA to a predictable location for artifact upload
           mkdir -p build/ios/ipa
           cp -r build/ios/archive/*.xcarchive build/ios/ipa/ || true
-          # We need to package it as an IPA for Sideloadly
-          # This is a simplified step; usually, a .app is zipped/renamed to .ipa for sideloading
           
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: aura-ios-ipa
           path: build/ios/archive/*.xcarchive
+
